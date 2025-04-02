@@ -34,4 +34,38 @@ export async function userCreatedEvent(user) {
     console.error("Error al publicar evento de usuario:", error);
     throw error;
   }
+};
+
+export async function passwordRecoveryEvent(data) {
+  try {
+    const connection = await amqp.connect({
+      protocol: 'amqps',
+      hostname: process.env.RABBITMQ_URL,
+      port: 5671,
+      username: process.env.RABBITMQ_USER,
+      password: process.env.RABBIT_PASS,
+      vhost: process.env.RABBITMQ_VHOST
+    });
+
+    const channel = await connection.createChannel();
+
+    const exchange = "user_event";
+    const routingKey = "user.recover";
+
+    await channel.assertExchange(exchange, "topic", { durable: true });
+
+    const message = JSON.stringify({
+      email: data.email,
+      subject: "Recuperación de contraseña",
+      body: `Hola, has solicitado recuperar tu contraseña. Si no fuiste tú, ignora este mensaje.`
+    });
+
+    channel.publish(exchange, routingKey, Buffer.from(message));
+    console.log(`[x] Sent recovery to ${data.email}`);
+
+    setTimeout(() => connection.close(), 500);
+  } catch (error) {
+    console.error("Error al publicar evento de recuperación:", error);
+  }
 }
+

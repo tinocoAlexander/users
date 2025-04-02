@@ -1,5 +1,5 @@
 import User from "../models/userModel.js";
-import { userCreatedEvent } from "../services/rabbitServices.js";
+import { userCreatedEvent, passwordRecoveryEvent } from "../services/rabbitServices.js";
 import jwt from 'jsonwebtoken';
 
 
@@ -162,5 +162,29 @@ export const login = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: 'Error al logearse' });
   }
-}
-  
+};
+
+export const recoverPassword = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: "El correo es obligatorio" });
+  }
+
+  try {
+    const user = await User.findOne({ where: { username: email } });
+
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    // Envía el evento a RabbitMQ
+    await passwordRecoveryEvent({ email });
+
+    return res.status(200).json({ message: "Correo de recuperación enviado" });
+
+  } catch (error) {
+    console.error("Error al enviar recuperación:", error);
+    res.status(500).json({ message: "Error al enviar recuperación" });
+  }
+};

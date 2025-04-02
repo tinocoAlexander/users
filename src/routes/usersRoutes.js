@@ -5,6 +5,7 @@ import {
   updateUser,
   deleteUser,
   login,
+  recoverPassword,
 } from "../controllers/userController.js";
 
 const router = express.Router(); // Router para crear rutas de nuestro servicio
@@ -57,6 +58,31 @@ router.patch("/update/:id", updateUser);
 router.delete("/delete/:id", deleteUser);
 
 router.post("/login/:id", login);
+
+router.post("/recover", recoverPassword);
+
+/**
+ * @swagger
+ * /app/users/recover:
+ *   post:
+ *     summary: Enviar correo de recuperación de contraseña
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Correo enviado correctamente
+ *       404:
+ *         description: Usuario no encontrado
+ */
+
 
 
 export default router;
