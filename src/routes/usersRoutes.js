@@ -57,7 +57,7 @@ router.patch("/update/:id", updateUser);
 
 router.delete("/delete/:id", deleteUser);
 
-router.post("/login/:id", login);
+router.post("/login", login);
 
 router.post("/recover", recoverPassword);
 

@@ -138,31 +138,37 @@ export const deleteUser = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const {id} = req.params;
-    const {password, username} = req.body;
+    const { username, password } = req.body;
     const SECRET_KEY = process.env.SECRET_PASSWORD;
 
-    const user = await User.findByPk(id);
-    
-    if (!user) {
-      return res.status(401).json( { message: "Usuario no encontrado" } );
+    if (!username || !password) {
+      return res.status(400).json({ message: "Usuario y contraseña requeridos" });
     }
 
-    if (password != user.password) {
-      return res.status(401).json({ message: "Credenciales invalidas" });
+    const user = await User.findOne({ where: { username } });
+
+    if (!user) {
+      return res.status(401).json({ message: "Usuario no encontrado" });
+    }
+
+    if (password !== user.password) {
+      return res.status(401).json({ message: "Credenciales inválidas" });
     }
 
     const token = jwt.sign(
       { id: user.id, username: user.username },
-      process.env.SECRET_PASSWORD,
-      {expiresIn: "1h"});
-    
-      return res.status(200).json( { message: "Usuario Logeado", data:token } )
+      SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+
+    return res.status(200).json({ message: "Usuario logeado", data: token });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al logearse' });
+    console.error("Error al iniciar sesión:", error);
+    res.status(500).json({ message: "Error al logearse" });
   }
 };
+
 
 export const recoverPassword = async (req, res) => {
   const { email } = req.body;
