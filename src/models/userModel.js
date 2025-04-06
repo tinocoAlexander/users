@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/bd.js";
+import Role from "./roleModel.js";
 
 const User = sequelize.define("User", {
   id: {
@@ -26,14 +27,25 @@ const User = sequelize.define("User", {
     allowNull: false,
     defaultValue: true,
   },
+  roleId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Role,
+      key: "id",
+    },
+  },
   creationDate: {
-    type    : DataTypes.DATE,
+    type: DataTypes.DATE,
     allowNull: false,
     defaultValue: DataTypes.NOW,
   },
 }, {
-    timestamps: false, // Desactiva createdAt y updatedAt
-    tableName: "users", //Debe coincidir con el nombre de la tabla
+  timestamps: false,
+  tableName: "users",
 });
+
+// Asociación: Un usuario pertenece a un rol
+User.belongsTo(Role, { foreignKey: "roleId" });
 
 export default User;
