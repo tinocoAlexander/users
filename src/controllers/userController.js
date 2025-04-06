@@ -10,15 +10,11 @@ export const getUsers = async (req, res) => {
   } catch (error) {
     console.error("Error al listar usuarios:", error);
     res.status(500).json({ message: "Error al listar usuarios" });
-  }
+  } 
 };
 
 export const createUser = async (req, res) => {
   const { password, username, phone, roleId } = req.body;
-
-  if (!phone || !username || !roleId) {
-    return res.status(400).json({ message: "Teléfono, correo y rol son obligatorios" });
-  }
 
   const existingUser = await User.findOne({ where: { username } });
   if (existingUser) {
